@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - WalletMoneyFamily</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --income-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --expense-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --members-gradient: linear-gradient(135deg, #46e47b 0%, #62d2e0 100%);
+            --primary: #667eea;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+        }
+
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1.8rem;
+            color: white;
+            border-radius: 16px;
+            background: var(--primary-gradient);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            pointer-events: none;
+        }
+
+        .stat-card.income { background: var(--income-gradient); }
+        .stat-card.expense { background: var(--expense-gradient); }
+        .stat-card.members { background: var(--members-gradient); }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 1.5px solid #e0e0e0;
+            padding: 0.65rem 1rem;
+            transition: all 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .btn-custom {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.7rem 1.5rem;
+            transition: all 0.2s;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #1d976a 100%);
+            border: none;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #f12711 0%, #ca5b10 100%);
+            border: none;
+        }
+
+        .table {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #495057;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.4em 0.8em;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+            padding: 1rem;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card-title i {
+            color: #667eea;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 71, 87, 0.3);
+        }
+
+        .input-group-text {
+            background: #f8f9fa;
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        /* === MIEMBROS DE LA FAMILIA === */
+        .avatar-circle {
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+        }
+
+        .copy-email {
+            transition: all 0.2s;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        .copy-email:hover {
+            background-color: #667eea !important;
+            color: white !important;
+            transform: translateY(-1px);
+        }
+        .copy-email.copied {
+            background-color: #28a745 !important;
+            color: white !important;
+        }
+        .copy-email.copied i::before {
+            content: "\f00c";
+        }
+
+        .member-card {
+            transition: all 0.2s;
+        }
+        .member-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4 px-4">
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0 d-flex align-items-center gap-2">
+                <i class="fas fa-home text-primary"></i>
+                <span class="fw-bold">{{ familia_nombre }}</span>
+            </h2>
+            <a href="{{ url_for('logout') }}" class="btn logout-btn text-white">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </a>
+        </div>
+
+        <!-- MENSAJES FLASH -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'warning' if category == 'warning' else 'danger' }} alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
+                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'times-circle' }} fs-5"></i>
+                        <div>{{ message }}</div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- ESTADÍSTICAS -->
+        <div class="row mb-4 g-4">
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <i class="fas fa-wallet stat-icon"></i>
+                    <div class="stat-value">${{ "%.2f"|format(saldo_total) }}</div>
+                    <div class="stat-label">Saldo Total</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card income">
+                    <i class="fas fa-arrow-trend-up stat-icon"></i>
+                    <div class="stat-value">${{ "%.2f"|format(total_ingresos) }}</div>
+                    <div class="stat-label">Ingresos</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card expense">
+                    <i class="fas fa-arrow-trend-down stat-icon"></i>
+                    <div class="stat-value">${{ "%.2f"|format(total_gastos) }}</div>
+                    <div class="stat-label">Gastos</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card members">
+                    <i class="fas fa-users stat-icon"></i>
+                    <div class="stat-value">{{ miembros }}</div>
+                    <div class="stat-label">Miembros</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- FORMULARIO + MOVIMIENTOS -->
+            <div class="col-lg-5">
+                <!-- FORMULARIO -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-plus-circle"></i> Registrar movimiento
+                        </h5>
+                        
+                        <form method="POST">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-tag text-primary"></i> Tipo</label>
+                                    <select name="tipo" class="form-select" required onchange="toggleForm(this)">
+                                        <option value="ingreso">Ingreso</option>
+                                        <option value="gasto">Gasto</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-heading text-primary"></i> Título</label>
+                                    <input type="text" name="titulo" class="form-control" placeholder="Ej: Salario" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-dollar-sign text-primary"></i> Monto</label>
+                                    <input type="number" step="0.01" name="monto" class="form-control" placeholder="0.00" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-user text-primary"></i> Miembro</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                        <input type="text" class="form-control" value="{{ current_user.nombre }}" readonly>
+                                        <input type="hidden" name="miembro" value="{{ current_user.nombre }}">
+                                    </div>
+                                    <small class="form-text text-muted">Registrado por ti</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-list text-primary"></i> Categoría</label>
+                                    <select name="categoria" class="form-select" id="categoria-select" required></select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fas fa-calendar text-primary"></i> Fecha</label>
+                                    <input type="date" name="fecha" class="form-control" value="{{ today }}" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label"><i class="fas fa-align-left text-primary"></i> Descripción (opcional)</label>
+                                    <textarea name="descripcion" class="form-control" rows="2" placeholder="Detalles adicionales..."></textarea>
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button type="submit" name="tipo" value="ingreso" class="btn btn-success btn-custom me-2" id="btn-ingreso">
+                                        <i class="fas fa-check"></i> Registrar Ingreso
+                                    </button>
+                                    <button type="submit" name="tipo" value="gasto" class="btn btn-danger btn-custom" id="btn-gasto" style="display:none;">
+                                        <i class="fas fa-check"></i> Registrar Gasto
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- BOTÓN ELIMINAR -->
+                        {% if tiene_movimientos %}
+                        <div class="mt-4 text-end">
+                            <form method="POST" action="{{ url_for('eliminar_ultimo') }}" 
+                                  onsubmit="return confirm('¿Eliminar tu último movimiento?\n\nEsta acción no se puede deshacer.');">
+                                <button type="submit" class="btn delete-btn text-white">
+                                    <i class="fas fa-trash-alt"></i> Eliminar último movimiento
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- ÚLTIMOS MOVIMIENTOS -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-history"></i> Últimos 5 movimientos
+                        </h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-tag"></i> Tipo</th>
+                                        <th><i class="fas fa-heading"></i> Título</th>
+                                        <th><i class="fas fa-dollar-sign"></i> Monto</th>
+                                        <th><i class="fas fa-user"></i> Miembro</th>
+                                        <th><i class="fas fa-calendar"></i> Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for mov in movimientos %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if mov['tipo'] == 'ingreso' else 'danger' }}">
+                                                <i class="fas fa-{{ 'arrow-up' if mov['tipo'] == 'ingreso' else 'arrow-down' }}"></i>
+                                                {{ mov['tipo']|title }}
+                                            </span>
+                                        </td>
+                                        <td class="fw-500">{{ mov['titulo'] }}</td>
+                                        <td class="fw-bold text-{{ 'success' if mov['tipo'] == 'ingreso' else 'danger' }}">
+                                            ${{ "%.2f"|format(mov['monto']) }}
+                                        </td>
+                                        <td><small class="text-muted">{{ mov['miembro'] }}</small></td>
+                                        <td><small>{{ mov['fecha'] }}</small></td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% if movimientos|length == 0 %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <i class="fas fa-inbox fs-1 text-muted d-block mb-2"></i>
+                                            No hay movimientos
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRÁFICOS + MIEMBROS -->
+            <div class="col-lg-7">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-chart-bar"></i> Ingresos vs Gastos
+                                </h6>
+                                <div class="chart-container">
+                                    <canvas id="barChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-chart-pie"></i> Gastos por Categoría
+                                </h6>
+                                <div class="chart-container">
+                                    <canvas id="pieChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-chart-line"></i> Evolución del Saldo
+                        </h6>
+                        <div class="chart-container">
+                            <canvas id="lineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MIEMBROS DE LA FAMILIA -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-users"></i> Miembros de la Familia
+                        </h6>
+                        <div class="row g-3">
+                            {% if miembros_familia and miembros_familia|length > 0 %}
+                                {% for usuario in miembros_familia %}
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded-3 border-start border-4 border-primary shadow-sm member-card">
+                                        <div class="flex-shrink-0">
+                                            <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center rounded-circle"
+                                                 style="width: 48px; height: 48px; font-weight: 700;">
+                                                {{ usuario['nombre'][0]|upper if usuario['nombre'] else '?' }}
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-1 fw-bold text-dark">
+                                                {{ usuario['nombre']|default('Sin nombre') }}
+                                            </h6>
+                                            <p class="mb-1 small text-muted">
+                                                {{ usuario['correo']|default('Sin correo') }}
+                                            </p>
+                                            {% if usuario['correo'] and usuario['correo'] != 'Sin correo' %}
+                                            <button class="btn btn-sm btn-outline-primary copy-email" 
+                                                    data-email="{{ usuario['correo'] }}">
+                                                <i class="fas fa-copy"></i> Copiar
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="col-12 text-center py-4">
+                                    <i class="fas fa-users-slash fs-1 text-muted d-block mb-3"></i>
+                                    <p class="text-muted">No hay miembros registrados aún</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DATOS PARA JS -->
+    <div id="chart-data"
+         data-meses="{{ meses }}"
+         data-ingresos="{{ ingresos_mensual }}"
+         data-gastos="{{ gastos_mensual }}"
+         data-categorias="{{ categorias }}"
+         data-montos="{{ montos_categoria }}"
+         data-fechas="{{ fechas_saldo }}"
+         data-saldo="{{ saldo_acumulado }}"
+         style="display: none;"></div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        // Copiar correo
+        document.querySelectorAll('.copy-email').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const email = this.getAttribute('data-email');
+                navigator.clipboard.writeText(email).then(() => {
+                    this.classList.add('copied');
+                    this.innerHTML = '<i class="fas fa-check"></i> Copiado';
+                    setTimeout(() => {
+                        this.classList.remove('copied');
+                        this.innerHTML = '<i class="fas fa-copy"></i> Copiar';
+                    }, 2000);
+                }).catch(() => {
+                    alert('Error al copiar');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
