@@ -1,4 +1,3 @@
-// src/static/js/dashboard.js
 console.log("dashboard.js cargado");
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -25,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // === GRÁFICO DE BARRAS ===
+    // Gráfico de barras chart.js
     if (data.meses.length > 0) {
         new Chart('barChart', {
             type: 'bar',
@@ -40,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // === GRÁFICO DE PASTEL ===
+    // Gráfico de pastel chart.js
     if (data.categorias.length > 0 && data.montos.some(m => m > 0)) {
         new Chart('pieChart', {
             type: 'doughnut',
@@ -55,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // === GRÁFICO DE LÍNEA ===
+    // Gráfico de línea chart.js
     if (data.fechas.length > 0) {
         new Chart('lineChart', {
             type: 'line',
@@ -74,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // === CATEGORÍAS DINÁMICAS ===
+    // Categorías dinámicas en el formulario
     const tipoSelect = document.querySelector('select[name="tipo"]');
     if (tipoSelect) {
         toggleForm(tipoSelect);

@@ -4,7 +4,7 @@
     font-weight: 600;
     padding: 0.5rem 1rem;
     border-radius: 8px;
-    display: inline-flex;              /* Mantiene flex */
+    display: inline-flex;            
     align-items: center;
     gap: 0.5rem;
     text-decoration: none;
@@ -13,18 +13,18 @@
     font-family: 'Courier New', monospace;
     letter-spacing: 0.5px;
     
-    /* SOLUCIÓN AL DESBORDE */
-    word-break: break-word;            /* Rompe palabras largas */
-    overflow-wrap: break-word;         /* Soporte para navegadores antiguos */
-    max-width: 100%;                   /* No excede el contenedor */
-    hyphens: auto;                     /* Hifens automáticos */
-    line-height: 1.4;                  /* Espaciado de línea */
+    /* Solución al Desborde */
+    word-break: break-word;            
+    overflow-wrap: break-word;        
+    max-width: 100%;                  
+    hyphens: auto;                    
+    line-height: 1.4;                 
 }
 
 .support-email span {
-    word-break: break-word;            /* Asegura que el span no desborde */
+    word-break: break-word;           
     overflow-wrap: break-word;
-    flex-shrink: 1;                    /* Se encoge si es necesario */
+    flex-shrink: 1;                    
 }
 
 /* Contenedor padre para evitar desborde */
@@ -34,6 +34,6 @@
     padding: 1.2rem;
     margin-top: 1.5rem;
     border-left: 4px solid var(--primary);
-    overflow: hidden;                  /* Evita desborde del sección */
-    word-wrap: break-word;             /* Rompe palabras en la sección */
+    overflow: hidden;                  
+    word-wrap: break-word;            
 }

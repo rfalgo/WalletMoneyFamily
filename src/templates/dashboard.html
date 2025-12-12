@@ -317,8 +317,17 @@
                                     <select name="categoria" class="form-select" id="categoria-select" required></select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><i class="fas fa-calendar text-primary"></i> Fecha</label>
-                                    <input type="date" name="fecha" class="form-control" value="{{ today }}" required>
+                                    <label class="form-label">
+                                        <i class="fas fa-calendar text-primary"></i> Fecha 
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-clock"></i>
+                                        </span>
+                                        <input type="text" class="form-control" value="{{ today }}" readonly>
+                                        <input type="hidden" name="fecha" value="{{ today }}">
+                                    </div>
+                                    <small class="form-text text-muted">Se registra automáticamente</small>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label"><i class="fas fa-align-left text-primary"></i> Descripción (opcional)</label>
@@ -338,10 +347,9 @@
                         <!-- BOTÓN ELIMINAR -->
                         {% if tiene_movimientos %}
                         <div class="mt-4 text-end">
-                            <form method="POST" action="{{ url_for('eliminar_ultimo') }}" 
-                                  onsubmit="return confirm('¿Eliminar tu último movimiento?\n\nEsta acción no se puede deshacer.');">
-                                <button type="submit" class="btn delete-btn text-white">
-                                    <i class="fas fa-trash-alt"></i> Eliminar último movimiento
+                            <form method="POST" action="{{ url_for('eliminar_ultimo') }}" onsubmit="return confirm('¿Seguro que quieres eliminar el último movimiento?');">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Eliminar último movimiento
                                 </button>
                             </form>
                         </div>
@@ -353,7 +361,7 @@
                 <div class="card mt-4">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <i class="fas fa-history"></i> Últimos 5 movimientos
+                            <i class="fas fa-history"></i> Últimos 10 movimientos
                         </h5>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
@@ -363,7 +371,7 @@
                                         <th><i class="fas fa-heading"></i> Título</th>
                                         <th><i class="fas fa-dollar-sign"></i> Monto</th>
                                         <th><i class="fas fa-user"></i> Miembro</th>
-                                        <th><i class="fas fa-calendar"></i> Fecha</th>
+                                        <th><i class="fas fa-calendar"></i> Fecha y Hora</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -380,7 +388,7 @@
                                             ${{ "%.2f"|format(mov['monto']) }}
                                         </td>
                                         <td><small class="text-muted">{{ mov['miembro'] }}</small></td>
-                                        <td><small>{{ mov['fecha'] }}</small></td>
+                                        <td><small>{{ mov['fecha']|datetime }}</small></td>
                                     </tr>
                                     {% endfor %}
                                     {% if movimientos|length == 0 %}
