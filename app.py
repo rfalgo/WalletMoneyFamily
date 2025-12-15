@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from src.db import get_db, init_app as init_db_app
-from datetime import datetime
+from datetime import timedelta, datetime, timezone
 import json
 import psycopg2
 
@@ -130,7 +130,7 @@ def dashboard():
         miembro = request.form['miembro'].strip()
         categoria = request.form['categoria'].strip()
         descripcion = request.form.get('descripcion', '').strip()
-        fecha = datetime.now()
+        fecha = datetime.now(timezone.utc) - timedelta(hours=5) # Hora Colombia
 
         tabla = 'ingresos' if tipo == 'ingreso' else 'gastos'
         cursor.execute(f'INSERT INTO {tabla} (usuario_id, titulo, monto, miembro, categoria, descripcion, fecha) VALUES (%s, %s, %s, %s, %s, %s, %s)',
